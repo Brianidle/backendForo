@@ -1,12 +1,14 @@
-const moongose = require('mongoose');
+const mongoose = require('mongoose');
 
-const parentChildCommentSchema = new moongose.Schema({
+const parentChildCommentSchema = new mongoose.Schema({
   idParent: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Comment',
     required: true
   },
   idChild: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Comment',
     required: true
   }
 });

@@ -1,9 +1,10 @@
-const moongose = require('moongose');
+const mongoose = require('mongoose');
 
-const commentSchema = new moongose.Schema(
+const commentSchema = new mongoose.Schema(
   {
     author: {
-      type: mongoose.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
       required: true
     },
     content: {
@@ -16,6 +17,6 @@ const commentSchema = new moongose.Schema(
   }
 );
 
-const Comment = moongose.model('Comment', commentSchema);
+const Comment = mongoose.model('Comment', commentSchema);
 
 module.exports = Comment;

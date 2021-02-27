@@ -14,7 +14,7 @@ const userSchema = new moongose.Schema(
       type: String,
       required: true
     },
-    picture: {
+    avatar: {
       type: String,
       required: true
     },
