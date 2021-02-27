@@ -1,9 +1,15 @@
-const express = require('express');
+require('dotenv').config();
 
-// Run our server on a port specified in our .env file or port 4000
+const db = require('./db');
+const express = require('express');
 const port = process.env.PORT || 4000;
 
+//---------------------------------------------------------------------
+
 const app = express();
+
+const DB_HOST = process.env.DB_HOST;
+db.connect(DB_HOST);
 
 app.listen({ port }, () =>
   console.log(
