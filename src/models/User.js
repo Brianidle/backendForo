@@ -4,11 +4,13 @@ const userSchema = new moongose.Schema(
   {
     username: {
       type: String,
-      required: true
+      required: true,
+      index: { unique: true }
     },
     email: {
       type: String,
-      required: true
+      required: true,
+      index: { unique: true }
     },
     password: {
       type: String,

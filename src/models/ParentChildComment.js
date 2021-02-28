@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 
 const parentChildCommentSchema = new mongoose.Schema({
-  idParent: {
+  idParentComment: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Comment',
     required: true
   },
-  idChild: {
+  idChildComment: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Comment',
     required: true
@@ -14,7 +14,7 @@ const parentChildCommentSchema = new mongoose.Schema({
 });
 
 const ParentChildComment = mongoose.model(
-  'CommentRelation',
+  'ParentChildComment',
   parentChildCommentSchema
 );
 
