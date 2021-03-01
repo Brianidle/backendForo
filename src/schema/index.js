@@ -1,6 +1,6 @@
-const {gql } = require('apollo-server-express'); 
+const { gql } = require('apollo-server-express');
 
-module.exports=gql`
+module.exports = gql`
     type Comment {
         id:ID
         author:ID!
@@ -22,11 +22,16 @@ module.exports=gql`
     }
 
     type Query {
+        usernameAlreadyExists(username:String!):Boolean
+        signIn(username: String!, password: String!): String
         posts:[Post]
+        comments(idPost:String!):[Comment]
     }
 
     type Mutation {
         signUp(username:String!, email:String!, password:String!):String
-        newPost(idAuthor:String!, title:String!, content:String! ):Post
+        newPost(idAuthor:String!, title:String!, content:String, urlImage:String ):Post
+        newComment(idAuthor:String!, idPost:String!, content:String!):String
+        newCommentReply(idComment:String!, idAuthor:String!, idPost:String!, content:String!):String
     }
 `;
