@@ -11,7 +11,8 @@ module.exports = gql`
         id:ID
         author:String!
         title:String!
-        content:String!
+        content:String
+        urlImage:String
     }
 
     type User{
@@ -26,6 +27,7 @@ module.exports = gql`
         signIn(username: String!, password: String!): String
         posts:[Post]
         comments(idPost:String!):[Comment]
+        authorPosts(idAuthor:ID!): [Post]
     }
 
     type Mutation {

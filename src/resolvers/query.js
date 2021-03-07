@@ -44,6 +44,9 @@ module.exports = {
   posts: async (parent, args, { models }) => {
     return await models.Post.find();
   },
+  authorPosts: async (parent,{idAuthor},{models})=>{
+    return await models.Post.find({author:idAuthor});
+  },
   signIn: async (parent, { username, password }, { models }) => {
     let user = await models.User.findOne({ username });
 
