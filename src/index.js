@@ -1,5 +1,6 @@
 const typeDefs = require('./schema');
 const resolvers = require('./resolvers');
+const cors = require('cors');
 const { ApolloServer } = require('apollo-server-express');
 
 require('dotenv').config();
@@ -14,6 +15,8 @@ const models = require('./models');
 //---------------------------------------------------------------------
 
 const app = express();
+
+app.use(cors());
 db.connect(DB_HOST);
 
 const apolloServer = new ApolloServer({
@@ -24,10 +27,10 @@ const apolloServer = new ApolloServer({
   }
 });
 
-apolloServer.applyMiddleware({app, path:'/'});
+apolloServer.applyMiddleware({app, path:'/foroApi'});
 
 app.listen({ port }, () =>
   console.log(
-    `GraphQL Server activated on this address http://localhost:${port}`
+    `GraphQL Server running at http://localhost:${port}${apolloServer.graphqlPath}`
   )
 );
