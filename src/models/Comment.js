@@ -15,6 +15,15 @@ const commentSchema = new mongoose.Schema(
     content: {
       type: String,
       required: true
+    },
+    foroPoints:{
+      type:Number,
+      required:true,
+      default: 0
+    },
+    hasParentComment:{
+      type:Boolean,
+      required:true
     }
   },
   {
