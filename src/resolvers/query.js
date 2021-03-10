@@ -49,17 +49,17 @@ module.exports = {
   },
   signIn: async (parent, { username, password }, { models }) => {
     let user = await models.User.findOne({ username });
-
+    
     if (user) {
       let valid = await bcrypt.compare(password, user.password);
 
       if (valid) {
         return jwt.sign({ id: user._id }, process.env.JWT_SECRET);
       } else {
-        return 'INVALID_PASSWORD';
+        return 'UNSUCCESSFUL_SIGNIN';
       }
     } else {
-      return 'INVALID_USERNAME';
+      return 'UNSUCCESSFUL_SIGNIN';
     }
   },
   usernameAlreadyExists: async (parent, { username }, { models }) => {
