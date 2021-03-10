@@ -26,7 +26,14 @@ module.exports = {
       throw new Error('Error creating account');
     }
   },
-  newPost: async (parent, { idAuthor, title, content, urlImage }, { models }) => {
+  newPost: async (
+    parent,
+    { idAuthor, title, content, urlImage },
+    { models, idUser }
+  ) => {
+    if(!idUser){
+      throw new Error('User Not Authenticated');
+    }
     try {
       return await models.Post.create({
         author: mongoose.Types.ObjectId(idAuthor),
@@ -39,13 +46,61 @@ module.exports = {
       throw new Error('Error creating a new post');
     }
   },
-  newComment: async (parent, { idAuthor, idPost, content }, { models }) => {
+  editPost: async (
+    parent,
+    { idPost, newContent, newTitle, newUrlImage },
+    { models, idUser }
+  ) => {
+
+    if(!idUser){
+      throw new Error('User Not Authenticated');
+    }
+
+    let newChangues = {};
+    if (newContent) {
+      newChangues.content = newContent;
+    }
+    if (newTitle) {
+      newChangues.title = newTitle;
+    }
+    if (newUrlImage) {
+      newChangues.urlImage = newUrlImage;
+    }
+    console.log(newChangues);
+    try {
+      await models.Post.findByIdAndUpdate(idPost, {
+        $set: newChangues
+      });
+      return 'EDIT_SUCESS';
+    } catch (err) {
+      console.log(err);
+      throw new Error('Error editing the post');
+    }
+  },
+  deletePost: async (parent, { idPost }, { models, idUser }) => {
+    if(!idUser){
+      throw new Error('User Not Authenticated');
+    }
+
+    let post = await models.Post.findOne({ _id: idPost });
+    if (post) {
+      await post.remove();
+      return true;
+    } else {
+      return false;
+    }
+  },
+  newComment: async (parent, { idAuthor, idPost, content }, { models, idUser }) => {
+    if(!idUser){
+      throw new Error('User Not Authenticated');
+    }
+
     try {
       await models.Comment.create({
         author: mongoose.Types.ObjectId(idAuthor),
         post: mongoose.Types.ObjectId(idPost),
         content,
-        hasParentComment:false
+        hasParentComment: false
       });
       return 'COMMENT_CREATED';
     } catch (err) {
@@ -63,7 +118,7 @@ module.exports = {
         author: mongoose.Types.ObjectId(idAuthor),
         post: mongoose.Types.ObjectId(idPost),
         content,
-        hasParentComment:true
+        hasParentComment: true
       });
 
       await models.ParentChildComment.create({

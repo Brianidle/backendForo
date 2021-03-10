@@ -35,5 +35,7 @@ module.exports = gql`
         newPost(idAuthor:String!, title:String!, content:String, urlImage:String ):Post
         newComment(idAuthor:String!, idPost:String!, content:String!):String
         newCommentReply(idComment:String!, idAuthor:String!, idPost:String!, content:String!):String
+        editPost(idPost:ID!, newContent:String, newTitle:String, newUrlImage:String):String
+        deletePost(idPost:ID!):Boolean
     }
 `;
