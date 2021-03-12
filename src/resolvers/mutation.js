@@ -28,15 +28,16 @@ module.exports = {
   },
   newPost: async (
     parent,
-    { idAuthor, title, content, urlImage },
+    { title, content, urlImage },
     { models, idUser }
   ) => {
+
     if(!idUser){
       throw new Error('User Not Authenticated');
     }
     try {
       return await models.Post.create({
-        author: mongoose.Types.ObjectId(idAuthor),
+        author: idUser.id,
         title,
         content,
         urlImage
