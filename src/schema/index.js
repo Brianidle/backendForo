@@ -1,6 +1,8 @@
 const { gql } = require('apollo-server-express');
 
 module.exports = gql`
+    scalar DateTime
+
     type Comment {
         id:ID
         author:ID!
@@ -9,22 +11,24 @@ module.exports = gql`
 
     type Post {
         id:ID
-        author:String!
+        author:User!
         title:String!
         content:String
         urlImage:String
+        createdAt: DateTime!
     }
 
     type User{
+        id:ID
         username:String!
         email:String!
-        image:String
-        avatar:Int!
+        avatar:String!
     }
 
     type Query {
         usernameAlreadyExists(username:String!):Boolean
         signIn(username: String!, password: String!): String
+        post(idPost:ID!):Post
         posts:[Post]
         comments(idPost:String!):[Comment]
         authorPosts(idAuthor:ID!): [Post]

@@ -41,6 +41,9 @@ const jwt = require('jsonwebtoken');
 */
 
 module.exports = {
+  post:async (parent,{idPost},{models})=>{
+    return await models.Post.findOne({_id:idPost});
+  },
   posts: async (parent, args, { models }) => {
     return await models.Post.find();
   },
