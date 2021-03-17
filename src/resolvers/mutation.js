@@ -49,7 +49,7 @@ module.exports = {
   },
   editPost: async (
     parent,
-    { idPost, newContent, newTitle, newUrlImage },
+    { idPost, content, title, urlImage },
     { models, idUser }
   ) => {
 
@@ -58,14 +58,14 @@ module.exports = {
     }
 
     let newChangues = {};
-    if (newContent) {
-      newChangues.content = newContent;
+    if (content) {
+      newChangues.content = content;
     }
-    if (newTitle) {
-      newChangues.title = newTitle;
+    if (title) {
+      newChangues.title = title;
     }
-    if (newUrlImage) {
-      newChangues.urlImage = newUrlImage;
+    if (urlImage) {
+      newChangues.urlImage = urlImage;
     }
     console.log(newChangues);
     try {
