@@ -14,22 +14,76 @@ const port = process.env.PORT || 4000;
 const DB_HOST = process.env.DB_HOST;
 
 const models = require('./models');
+
 //---------------------------------------------------------------------
 
 const app = express();
 
-app.use(cors());
+var corsOptions = {
+  origin: 'http://localhost:3491',
+  credentials: true
+};
+
+app.use(cors(corsOptions));
+
+app.get("/foroApi/authCookies", (req, res) => {
+  let token = req.headers.authorization;
+  const idUser = getUser(token);
+
+  res.cookie("user_session", token, {
+    expires: new Date(Date.now() + 1296000000)
+  });
+
+  models.User.findOne({ _id: idUser.id }, (err, user) => {
+    if (user) {
+      res.cookie("username", user.username, { expires: new Date(Date.now() + 1296000000) });
+      res.send("Authenticated");
+    } else {
+      res.send("Not Authenticated");
+    }
+  });
+
+});
+
+app.get("/foroApi/logout", (req, res) => {
+  logOutClient(res);
+
+  res.send("Logged Out");
+});
+
 db.connect(DB_HOST);
 
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req }) => {
-    
-    const token = req.headers.authorization;
-    
-    const idUser = getUser(token);
-    
+  context: ({ req, res }) => {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3491');
+
+    let idUser;
+    let jsonCookies;
+
+    let cookies = req.header('Cookie');
+
+    if (cookies) {
+      jsonCookies = getJsonCookies(cookies);
+      let token = jsonCookies.user_session;
+      try {
+        idUser = getUser(token);
+      }
+      catch (err) {
+        logOutClient(res);
+      }
+
+      if (idUser) {
+        let keyNames = Object.keys(jsonCookies);
+        //reenvio de cookies
+        keyNames.forEach(keyName => {
+          res.cookie(keyName, jsonCookies[keyName], token, {
+            expires: new Date(Date.now() + 1296000000)
+          });
+        })
+      }
+    }
     return { models, idUser };
   }
 });
@@ -44,10 +98,25 @@ app.listen({ port }, () =>
 
 const getUser = token => {
   if (token) {
-    try {
-      return jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-      throw new Error('Session invalid');
-    }
+    return jwt.verify(token, process.env.JWT_SECRET);
   }
 };
+
+const getJsonCookies = (cookiesString) => {
+  let jsonCookies;
+
+  let cookiesStringTrim = cookiesString.replace(" ", "");
+  let keyEqualValueCookiesArray = cookiesStringTrim.split(";");
+
+  keyEqualValueCookiesArray.forEach(keyEqualValueCookie => {
+    let keyValue = keyEqualValueCookie.split("=");
+    jsonCookies = { ...jsonCookies, [keyValue[0]]: keyValue[1] }
+  });
+
+  return jsonCookies;
+};
+
+const logOutClient=(res)=>{
+  res.cookie("user_session", "", { expire: new Date(Date.now() - 1296000000) });
+  res.cookie("username", "", { expire: new Date(Date.now() - 1296000000) });
+}
