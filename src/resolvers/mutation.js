@@ -12,18 +12,16 @@ module.exports = {
     let avatar = gravatar(email);
 
     try {
-      let user = await models.User.create({
+      await models.User.create({
         username: username,
         email: email,
         password: hashedPassword,
         avatar
       });
 
-      return jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      return "USER_CREATED";
     } catch (err) {
-      console.log(err);
-
-      throw new Error('Error creating account');
+      return "ERROR_USER_CREATED";
     }
   },
   newPost: async (
@@ -67,15 +65,14 @@ module.exports = {
     if (urlImage) {
       newChangues.urlImage = urlImage;
     }
-    console.log(newChangues);
+    
     try {
       await models.Post.findByIdAndUpdate(idPost, {
         $set: newChangues
       });
-      return 'EDIT_SUCESS';
+      return 'POST_EDITED';
     } catch (err) {
-      console.log(err);
-      throw new Error('Error editing the post');
+      return 'ERROR_POST_EDITED';
     }
   },
   deletePost: async (parent, { idPost }, { models, idUser }) => {
