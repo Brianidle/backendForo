@@ -20,7 +20,7 @@ const models = require('./models');
 const app = express();
 
 var corsOptions = {
-  origin: 'http://localhost:3491',
+  origin: process.env.ACAOrigin_URL,
   credentials: true
 };
 
@@ -57,7 +57,7 @@ const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
   context: ({ req, res }) => {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:3491');
+    res.header('Access-Control-Allow-Origin', process.env.ACAOrigin_URL);
 
     let idUser;
     let jsonCookies;
