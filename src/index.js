@@ -31,12 +31,16 @@ app.get("/foroApi/authCookies", (req, res) => {
   const idUser = getUser(token);
 
   res.cookie("user_session", token, {
-    expires: new Date(Date.now() + 1296000000)
+    expires: new Date(Date.now() + 1296000000),
+    sameSite: 'none'
   });
 
   models.User.findOne({ _id: idUser.id }, (err, user) => {
     if (user) {
-      res.cookie("username", user.username, { expires: new Date(Date.now() + 1296000000) });
+      res.cookie("username", user.username, {
+        expires: new Date(Date.now() + 1296000000),
+        sameSite: 'none'
+      });
       res.send("Authenticated");
     } else {
       res.send("Not Authenticated");
@@ -79,7 +83,8 @@ const apolloServer = new ApolloServer({
         //reenvio de cookies
         keyNames.forEach(keyName => {
           res.cookie(keyName, jsonCookies[keyName], token, {
-            expires: new Date(Date.now() + 1296000000)
+            expires: new Date(Date.now() + 1296000000),
+            sameSite: 'none'
           });
         })
       }
@@ -116,7 +121,13 @@ const getJsonCookies = (cookiesString) => {
   return jsonCookies;
 };
 
-const logOutClient=(res)=>{
-  res.cookie("user_session", "", { expire: new Date(Date.now() - 1296000000) });
-  res.cookie("username", "", { expire: new Date(Date.now() - 1296000000) });
+const logOutClient = (res) => {
+  res.cookie("user_session", "", {
+    expire: new Date(Date.now() - 1296000000),
+    sameSite: 'none'
+  });
+  res.cookie("username", "", {
+    expire: new Date(Date.now() - 1296000000),
+    sameSite: 'none'
+  });
 }
