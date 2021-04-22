@@ -1,6 +1,10 @@
 const typeDefs = require('./schema');
 const resolvers = require('./resolvers');
+
+var bodyParser = require('body-parser');
+
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const cors = require('cors');
 const { ApolloServer } = require('apollo-server-express');
@@ -25,32 +29,50 @@ var corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(bodyParser.json());
 
-app.get("/foroApi/authCookies", (req, res) => {
-  let token = req.headers.authorization;
-  const idUser = getUser(token);
+app.post("/foroApi/signin", async (req, res) => {
+  try {
 
-  res.cookie("user_session", token, {
-    expires: new Date(Date.now() + 1296000000),
-    sameSite: 'none'
-  });
+    let cookiesArray = [];
+    let token;
+    let username = req.body.username;
+    let password = req.body.password;
 
-  models.User.findOne({ _id: idUser.id }, (err, user) => {
+    res.header('Access-Control-Allow-Origin', process.env.ACAOrigin_URL);
+
+    let user = await models.User.findOne({ username });
+
     if (user) {
-      res.cookie("username", user.username, {
-        expires: new Date(Date.now() + 1296000000),
-        sameSite: 'none'
-      });
-      res.send("Authenticated");
-    } else {
-      res.send("Not Authenticated");
-    }
-  });
+      let valid = await bcrypt.compare(password, user.password);
 
-});
+      if (valid) {
+        token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+
+        let usersessionCookie = 'user_session=' + token + '; expires=' + new Date(Date.now() + 1296000000).toUTCString() + '; secure; SameSite=None';
+        let usernameCookie = 'username=' + user.username + '; expires=' + new Date(Date.now() + 1296000000).toUTCString() + '; secure; SameSite=None';
+
+        cookiesArray.push(usersessionCookie);
+        cookiesArray.push(usernameCookie);
+
+        res.setHeader('Set-Cookie', cookiesArray);
+
+        return res.send("Authorized User");
+      } else {
+        return res.status(401).send("Unauthorized User");
+      }
+    } else {
+      return res.status(401).send("Unauthorized User");
+    }
+
+  } catch (err) {
+    console.log(err);
+  }
+}
+);
 
 app.get("/foroApi/logout", (req, res) => {
-  logOutClient(res);
+  deleteUserAutenticationCookies(res);
 
   res.send("Logged Out");
 });
@@ -70,25 +92,19 @@ const apolloServer = new ApolloServer({
 
     if (cookies) {
       jsonCookies = getJsonCookies(cookies);
+
       let token = jsonCookies.user_session;
+
       try {
         idUser = getUser(token);
-      }
-      catch (err) {
-        logOutClient(res);
-      }
+        res.status(203);
+      } catch (err) {
+        deleteUserAutenticationCookies(res);
 
-      if (idUser) {
-        let keyNames = Object.keys(jsonCookies);
-        //reenvio de cookies
-        keyNames.forEach(keyName => {
-          res.cookie(keyName, jsonCookies[keyName], token, {
-            expires: new Date(Date.now() + 1296000000),
-            sameSite: 'none'
-          });
-        })
+        return res.status(401).send("Unauthorized User");
       }
     }
+
     return { models, idUser };
   }
 });
@@ -121,13 +137,7 @@ const getJsonCookies = (cookiesString) => {
   return jsonCookies;
 };
 
-const logOutClient = (res) => {
-  res.cookie("user_session", "", {
-    expire: new Date(Date.now() - 1296000000),
-    sameSite: 'none'
-  });
-  res.cookie("username", "", {
-    expire: new Date(Date.now() - 1296000000),
-    sameSite: 'none'
-  });
+const deleteUserAutenticationCookies=(res) => {
+  res.setHeader('Set-Cookie', ['user_session="";' + 'expires=' + new Date(Date.now() - 1296000000).toUTCString() + '; secure; SameSite=None',
+  'username="";' + 'expires=' + new Date(Date.now() - 1296000000).toUTCString() + '; secure; SameSite=None']);
 }
