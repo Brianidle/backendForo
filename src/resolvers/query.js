@@ -1,44 +1,5 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-/*
-[
-  {
-    primer comentario,
-    childCommments:[
-      {
-        respuesta 1,
-        childCommments:[
-          {
-            respuesta respuesta 1,
-            childCommments:[]
-          },
-          {
-            respuesta respuesta 2,
-            childCommments:[]
-          }
-        ]
-      },
-      {
-        respuesta 2,
-        childCommments:[]
-      },
-      {
-        respuesta 3,
-        childCommments:[]
-      }
-    ]
-  },
-  {
-    segundo comentario,
-    childCommments:[]
-  },
-  {
-    tercer comentario,
-    childCommments:[]
-  }
-]
-
-*/
 
 module.exports = {
   post: async (parent, { idPost }, { models, idUser }) => {
@@ -88,6 +49,47 @@ module.exports = {
     return await models.Comment.find({ post: idPost });
   }
 };
+
+//The comments system is not finished yet
+/*
+[
+  {
+    primer comentario,
+    childCommments:[
+      {
+        respuesta 1,
+        childCommments:[
+          {
+            respuesta respuesta 1,
+            childCommments:[]
+          },
+          {
+            respuesta respuesta 2,
+            childCommments:[]
+          }
+        ]
+      },
+      {
+        respuesta 2,
+        childCommments:[]
+      },
+      {
+        respuesta 3,
+        childCommments:[]
+      }
+    ]
+  },
+  {
+    segundo comentario,
+    childCommments:[]
+  },
+  {
+    tercer comentario,
+    childCommments:[]
+  }
+]
+
+*/
 
 /*
 INTENTO DE DEVOLVER UN ARRAY CON LOS COMENTARIOS ORDENADOS HERARQUICAMENTE
