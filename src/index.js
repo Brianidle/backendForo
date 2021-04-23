@@ -94,15 +94,25 @@ const apolloServer = new ApolloServer({
       jsonCookies = getJsonCookies(cookies);
 
       let token = jsonCookies.user_session;
+      if (token) {
+        //if it is not possible to get an object decoded by jwt and it trows an exception the catch block handles it.  
+        try {
+          idUser = getUser(token);
 
-      try {
-        idUser = getUser(token);
-        res.status(200);
-      } catch (err) {
+          res.status(200);
+        } catch (err) {
+          deleteUserAutenticationCookies(res);
+
+          return res.status(401).send("Unauthorized User");
+        }
+      } else {
+        //custom status code used to tell the request arrived without the user_session cookie, or in other words it arrived without the autentication cookie
         deleteUserAutenticationCookies(res);
-
-        return res.status(401).send("Unauthorized User");
+        res.status(230);
       }
+    } else {
+      //custom status code used to tell the request arrived without the user_session cookie, or in other words it arrived without the autentication cookie
+      res.status(230);
     }
 
     return { models, idUser };
@@ -137,7 +147,7 @@ const getJsonCookies = (cookiesString) => {
   return jsonCookies;
 };
 
-const deleteUserAutenticationCookies=(res) => {
+const deleteUserAutenticationCookies = (res) => {
   res.setHeader('Set-Cookie', ['user_session="";' + 'expires=' + new Date(Date.now() - 1296000000).toUTCString() + '; secure; SameSite=None',
   'username="";' + 'expires=' + new Date(Date.now() - 1296000000).toUTCString() + '; secure; SameSite=None']);
 }
