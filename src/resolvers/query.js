@@ -41,18 +41,27 @@ const jwt = require('jsonwebtoken');
 */
 
 module.exports = {
-  post:async (parent,{idPost},{models})=>{
-    return await models.Post.findOne({_id:idPost});
+  post: async (parent, { idPost }, { models, idUser }) => {
+    let post = await models.Post.findOne({ _id: idPost });
+    let idPostAuthor = post.author;
+    
+    if (idUser.id == idPostAuthor) {
+      post.belongsToTheAuthenticatedUser = true;
+    } else {
+      post.belongsToTheAuthenticatedUser = false;
+    }
+
+    return post;
   },
   posts: async (parent, args, { models }) => {
     return await models.Post.find();
   },
-  authorPosts: async (parent,args,{models,idUser})=>{
-    return await models.Post.find({author:idUser.id});
+  authorPosts: async (parent, args, { models, idUser }) => {
+    return await models.Post.find({ author: idUser.id });
   },
   signIn: async (parent, { username, password }, { models }) => {
     let user = await models.User.findOne({ username });
-    
+
     if (user) {
       let valid = await bcrypt.compare(password, user.password);
 
@@ -75,14 +84,14 @@ module.exports = {
     }
   },
   comments: async (parent, { idPost }, { models }) => {
-    return await models.Comment.find({post:idPost});
+    return await models.Comment.find({ post: idPost });
   }
 };
 
 /*
 INTENTO DE DEVOLVER UN ARRAY CON LOS COMENTARIOS ORDENADOS HERARQUICAMENTE
 EL PROBLEMA ES QUE CUANDO LE DIGO A MONGO DB QUE ME DEVUELVA DATA usando Model.find()
-este se salta a otra linea y el valor que le asigno a una variable usando la data queda en undefined 
+este se salta a otra linea y el valor que le asigno a una variable usando la data queda en undefined
 
 async function hierarchyComments(comments, models) {
   let commentsHierarchicallyOrdered = [];
@@ -153,4 +162,4 @@ comments: (parent, { idPost }, { models }) => {
         return commentsHierarchicallyOrdered;
       });
   }
-*/ 
+*/

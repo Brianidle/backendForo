@@ -15,6 +15,7 @@ module.exports = gql`
         title:String!
         content:String
         urlImage:String
+        belongsToTheAuthenticatedUser:Boolean
         createdAt: DateTime!
     }
 
