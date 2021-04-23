@@ -44,11 +44,12 @@ module.exports = {
   post: async (parent, { idPost }, { models, idUser }) => {
     let post = await models.Post.findOne({ _id: idPost });
     let idPostAuthor = post.author;
-    
-    if (idUser.id == idPostAuthor) {
-      post.belongsToTheAuthenticatedUser = true;
-    } else {
-      post.belongsToTheAuthenticatedUser = false;
+    if (idUser) {
+      if (idUser.id == idPostAuthor) {
+        post.belongsToTheAuthenticatedUser = true;
+      } else {
+        post.belongsToTheAuthenticatedUser = false;
+      }
     }
 
     return post;
