@@ -97,7 +97,7 @@ const apolloServer = new ApolloServer({
 
       try {
         idUser = getUser(token);
-        res.status(203);
+        res.status(200);
       } catch (err) {
         deleteUserAutenticationCookies(res);
 
