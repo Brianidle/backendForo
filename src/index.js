@@ -59,10 +59,10 @@ app.post("/foroApi/signin", async (req, res) => {
 
         return res.send("Authorized User");
       } else {
-        return res.status(401).send("Unauthorized User");
+        return res.send("Unauthorized User");
       }
     } else {
-      return res.status(401).send("Unauthorized User");
+      return res.send("Unauthorized User");
     }
 
   } catch (err) {
