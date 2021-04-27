@@ -14,8 +14,13 @@ const postSchema = new mongoose.Schema(
     content: {
       type: String
     },
-    urlImage:{
-      type:String
+    urlImage: {
+      type: String
+    },
+    foroPoints: {
+      type: Number,
+      required: true,
+      default: 0
     }
   },
   {

@@ -15,6 +15,7 @@ module.exports = gql`
         title:String!
         content:String
         urlImage:String
+        foroPoints:Int
         belongsToTheAuthenticatedUser:Boolean
         createdAt: DateTime!
     }
@@ -42,5 +43,7 @@ module.exports = gql`
         newCommentReply(idComment:String!, idAuthor:String!, idPost:String!, content:String!):String
         editPost(idPost:ID!, content:String, title:String, urlImage:String):String
         deletePost(idPost:ID!):Boolean
+        upvotePost(idPost:ID!):Boolean
+        downvotePost(idPost:ID!):Boolean
     }
 `;

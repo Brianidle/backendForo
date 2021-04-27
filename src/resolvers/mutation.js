@@ -30,7 +30,7 @@ module.exports = {
     { models, idUser }
   ) => {
 
-    if(!idUser){
+    if (!idUser) {
       throw new Error('User Not Authenticated');
     }
     try {
@@ -51,21 +51,16 @@ module.exports = {
     { models, idUser }
   ) => {
 
-    if(!idUser){
+    if (!idUser) {
       throw new Error('User Not Authenticated');
     }
 
     let newChangues = {};
-    if (content) {
-      newChangues.content = content;
-    }
-    if (title) {
-      newChangues.title = title;
-    }
-    if (urlImage) {
-      newChangues.urlImage = urlImage;
-    }
-    
+    //the validations are done in the front-end
+    newChangues.content = content;
+    newChangues.title = title;
+    newChangues.urlImage = urlImage;
+
     try {
       await models.Post.findByIdAndUpdate(idPost, {
         $set: newChangues
@@ -76,7 +71,7 @@ module.exports = {
     }
   },
   deletePost: async (parent, { idPost }, { models, idUser }) => {
-    if(!idUser){
+    if (!idUser) {
       throw new Error('User Not Authenticated');
     }
 
@@ -88,8 +83,59 @@ module.exports = {
       return false;
     }
   },
+  upvotePost: async (parent, { idPost }, { models, idUser }) => {
+    let userVote = await models.DownUpVotePostUser.findOne({ idPost, idUser: idUser.id });
+
+    if (userVote) {
+      if (userVote.vote == -1) {
+        await models.Post.findOneAndUpdate({ _id: idPost }, { $inc: { foroPoints: 1 } });
+        userVote.vote = 1;
+
+        await userVote.save();
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      await models.Post.findOneAndUpdate({ _id: idPost }, { $inc: { foroPoints: 1 } });
+      await models.DownUpVotePostUser.create({
+        idPost: idPost,
+        idUser: idUser.id,
+        vote: 1
+      });
+
+      return true;
+    }
+  },
+  downvotePost: async (parent, { idPost }, { models, idUser }) => {
+    let userVote = await models.DownUpVotePostUser.findOne({ idPost, idUser: idUser.id });
+
+    if (userVote) {
+      if (userVote.vote == 1) {
+        await models.Post.findOneAndUpdate({ _id: idPost }, { $inc: { foroPoints: -1 } });
+
+        userVote.vote = -1;
+        await userVote.save();
+
+        return true;
+      } else {
+
+        return false;
+      }
+    } else {
+      await models.Post.findOneAndUpdate({ _id: idPost }, { $inc: { foroPoints: -1 } });
+
+      await models.DownUpVotePostUser.create({
+        idPost: idPost,
+        idUser: idUser.id,
+        vote: -1
+      });
+
+      return true;
+    }
+  },
   newComment: async (parent, { idAuthor, idPost, content }, { models, idUser }) => {
-    if(!idUser){
+    if (!idUser) {
       throw new Error('User Not Authenticated');
     }
 
@@ -129,5 +175,5 @@ module.exports = {
       console.log(err);
       throw new Error('Error creating a new commet');
     }
-  }
+  },
 };
