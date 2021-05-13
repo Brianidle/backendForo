@@ -10,15 +10,13 @@ module.exports = {
     mongoose.set('useCreateIndex', true);
     // Use the new server discovery and monitoring engine
     mongoose.set('useUnifiedTopology', true);
-    // Connect to the DB
-    mongoose.connect(DB_HOST);
 
-    mongoose.connection.on('connecting', function(){
-        console.log("trying to establish a connection to mongo");
+    mongoose.connection.on('connecting', function () {
+      console.log("trying to establish a connection to mongo");
     });
-    
-    mongoose.connection.on('connected', function() {
-        console.log("connection established successfully");
+
+    mongoose.connection.on('connected', function () {
+      console.log("connection established successfully");
     });
     // Log an error if we fail to connect
     mongoose.connection.on('error', err => {
@@ -29,6 +27,10 @@ module.exports = {
 
       process.exit();
     });
+
+    // Connect to the DB
+    mongoose.connect(DB_HOST);
+
   },
   close: () => {
     mongoose.connection.close();
