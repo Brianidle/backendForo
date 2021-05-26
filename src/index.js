@@ -4,6 +4,7 @@ const typeDefs = require('./schema');
 const resolvers = require('./resolvers');
 
 var bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -26,6 +27,8 @@ const models = require('./models');
 const app = express();
 db.connect(DB_HOST);
 
+app.use(cookieParser());
+
 var corsOptions = {
   origin: process.env.ACAOrigin_URL,
   credentials: true
@@ -43,33 +46,19 @@ const apolloServer = new ApolloServer({
     res.header('Access-Control-Allow-Origin', process.env.ACAOrigin_URL);
 
     let idUser;
-    let jsonCookies;
 
-    let cookies = req.header('Cookie');
+    let token = req.cookies.user_session;
+    if (token) {
+      //if it is not possible to get an object decoded by jwt and it trows an exception the catch block handles it.  
+      try {
+        idUser = getUser(token);
 
-    if (cookies) {
-      jsonCookies = getJsonCookies(cookies);
-
-      let token = jsonCookies.user_session;
-      if (token) {
-        //if it is not possible to get an object decoded by jwt and it trows an exception the catch block handles it.  
-        try {
-          idUser = getUser(token);
-
-          res.status(200);
-        } catch (err) {
-          deleteUserAutenticationCookies(res);
-
-          return res.status(401).send("Unauthorized User");
-        }
-      } else {
-        //custom status code used to tell the request arrived without the user_session cookie, or in other words it arrived without the autentication cookie
+        res.status(200);
+      } catch (err) {
         deleteUserAutenticationCookies(res);
-        res.status(230);
+
+        return res.status(401).send("Unauthorized User");
       }
-    } else {
-      //custom status code used to tell the request arrived without the user_session cookie, or in other words it arrived without the autentication cookie
-      res.status(230);
     }
 
     return { models, idUser };
@@ -77,6 +66,24 @@ const apolloServer = new ApolloServer({
 });
 
 apolloServer.applyMiddleware({ app, path: '/foroApi' });
+
+app.get("/session", (req, res) => {
+  let idUser = "";
+  let token = req.cookies.user_session;
+  if (token) {
+    try {
+      idUser = getUser(token);
+      
+      res.status(200).send({ idUser });
+    } catch (err) {
+      deleteUserAutenticationCookies(res);
+
+      res.status(401).send({ idUser });
+    }
+  } else {
+    res.status(401).send({ idUser });
+  }
+});
 
 app.get("/test", (req, res) => {
   res.status(200).send("Test");
